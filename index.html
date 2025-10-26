@@ -158,7 +158,8 @@
   </div>
 
   <script>
-    // --- Persistence helpers (LocalStorage) ---
+    const API_URL = "https://manager-10-production.up.railway.app"; 
+
     const db = {
       read(){
         return JSON.parse(localStorage.getItem('mgr1')||'{}');
@@ -485,3 +486,4 @@
   </script>
 </body>
 </html>
+
