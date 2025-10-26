@@ -1,0 +1,11 @@
+{
+  "name": "Manager 1.0 – PWN Panel",
+  "short_name": "Manager 1.0",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#00010f",
+  "theme_color": "#0a1030",
+  "icons": [
+    {"src": "favicon.png", "sizes": "64x64", "type": "image/png"}
+  ]
+}
