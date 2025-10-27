@@ -1,8 +1,6 @@
 // sw.js – offline cache + notification click
-const CACHE = 'mgr1-cache-v1';
-const ASSETS = [
-  './', './index.html', './manifest.json'
-];
+const CACHE = 'mgr1-cache-v2';
+const ASSETS = ['./', './index.html', './manifest.json'];
 self.addEventListener('install', e=>{
   e.waitUntil(caches.open(CACHE).then(c=>c.addAll(ASSETS)));
   self.skipWaiting();
