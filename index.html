@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Manager 1.0 – PWN Panel</title>
   <meta name="theme-color" content="#0a1030" />
-  <meta name="description" content="Manager 1.0 – panel PWN do zarządzania zleceniami, finansami, projektami i pracownikami." />
+  <meta name="description" content="Manager 1.0 – panel PWN do zarządzania zleceniami, zadaniami, zarobkami i pracownikami." />
   <link rel="manifest" href="./manifest.json" />
   <link rel="icon" href="favicon.png" />
 
@@ -25,10 +25,10 @@
     .card{border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.05);border-radius:1rem}
     .pill{border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.06);border-radius:999px;padding:.25rem .6rem;font-size:.75rem}
     .navbtn.active{outline:2px solid var(--accent); outline-offset: -2px;}
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;z-index:50}
   </style>
 </head>
 <body class="text-white min-h-screen selection:bg-[#ff0354]/40 selection:text-white">
-  <!-- App Shell -->
   <div id="app" class="mx-auto max-w-6xl px-3 py-4">
     <!-- Top bar -->
     <header class="sticky top-0 z-40 glass border border-white/10 rounded-xl px-3 py-3 mb-3 flex items-center justify-between">
@@ -45,15 +45,11 @@
       </div>
     </header>
 
-    <!-- Auth card -->
+    <!-- Logowanie (bez podpowiedzi haseł) -->
     <section id="authCard" class="card p-4 md:p-6">
       <h1 class="text-xl font-bold mb-3 flex items-center gap-2">
         <i data-lucide="lock" class="w-5 h-5 text-[var(--accent)]"></i> Logowanie
       </h1>
-      <p class="text-sm text-white/70 mb-4">
-        Domyślne dane: <span class="pill">login: <b>Gracjan</b></span>
-        <span class="pill">hasło: <b>Gracjan33201</b></span>
-      </p>
       <form id="loginForm" class="grid gap-3 md:grid-cols-3">
         <input id="login" class="card p-3 bg-black/40" placeholder="Login" required />
         <input id="password" type="password" class="card p-3 bg-black/40" placeholder="Hasło" required />
@@ -61,24 +57,23 @@
       </form>
     </section>
 
-    <!-- Main layout -->
-    <!-- Uwaga: klasa 'hidden' jest usuwana po zalogowaniu; na mobile działa jako grid-cols-1 -->
+    <!-- Layout po zalogowaniu -->
     <section id="main" class="hidden grid grid-cols-1 md:grid-cols-[280px_1fr] gap-3 mt-3">
       <!-- Sidebar -->
       <aside class="card p-3 h-max md:sticky md:top-[70px]">
         <nav id="nav" class="grid gap-1 text-sm">
           <button data-view="zlecenia"   class="navbtn active flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="clipboard-list" class="w-4 h-4 text-[var(--accent)]"></i>Zlecenia</button>
-          <button data-view="realizacje" class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="wrench"        class="w-4 h-4 text-[var(--accent)]"></i>Realizacje</button>
-          <button data-view="finanse"    class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="wallet"        class="w-4 h-4 text-[var(--accent)]"></i>Finanse</button>
-          <button data-view="projekty"   class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="layout-grid"   class="w-4 h-4 text-[var(--accent)]"></i>Projekty</button>
-          <button data-view="pracownicy" class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="users"         class="w-4 h-4 text-[var(--accent)]"></i>Pracownicy</button>
-          <button data-view="start"      class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="rocket"        class="w-4 h-4 text-[var(--accent)]"></i>Start</button>
+          <button data-view="zadania"    class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="check-square"     class="w-4 h-4 text-[var(--accent)]"></i>Zadania</button>
+          <button data-view="zarobki"    class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="coins"           class="w-4 h-4 text-[var(--accent)]"></i>Zarobki</button>
+          <button data-view="projekty"   class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="layout-grid"     class="w-4 h-4 text-[var(--accent)]"></i>Projekty</button>
+          <button data-view="pracownicy" class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="users"           class="w-4 h-4 text-[var(--accent)]"></i>Pracownicy</button>
+          <button data-view="archiwum"   class="navbtn flex items-center gap-2 card p-3 hover:bg-white/10"><i data-lucide="archive"         class="w-4 h-4 text-[var(--accent)]"></i>Archiwum</button>
         </nav>
       </aside>
 
       <!-- Content -->
       <main id="content" class="grid gap-3">
-        <!-- ZLECENIA -->
+        <!-- ZLECENIA (bez zmian) -->
         <section id="view-zlecenia" class="card p-4">
           <header class="flex items-center justify-between mb-3">
             <h2 class="text-lg font-bold flex items-center gap-2">
@@ -95,31 +90,44 @@
             <input class="card p-3 bg-black/40" name="contact" placeholder="Kontakt do zleceniodawcy" required />
             <button class="card p-3 bg-[var(--accent)] hover:brightness-110 font-semibold">Dodaj zlecenie</button>
           </form>
-
           <div id="ordersList" class="grid gap-2"></div>
         </section>
 
-        <!-- REALIZACJE -->
-        <section id="view-realizacje" class="card p-4 hidden">
-          <h2 class="text-lg font-bold mb-2 flex items-center gap-2">
-            <i data-lucide="wrench" class="w-5 h-5 text-[var(--accent)]"></i>Realizacje
-          </h2>
-          <div class="text-white/70">W budowie…</div>
-        </section>
-
-        <!-- FINANSE -->
-        <section id="view-finanse" class="card p-4 hidden">
+        <!-- ZADANIA (widzi każdy) -->
+        <section id="view-zadania" class="card p-4 hidden">
           <header class="flex items-center justify-between mb-2">
             <h2 class="text-lg font-bold flex items-center gap-2">
-              <i data-lucide="wallet" class="w-5 h-5 text-[var(--accent)]"></i>Finanse
+              <i data-lucide="check-square" class="w-5 h-5 text-[var(--accent)]"></i>Zadania
             </h2>
-            <span class="pill">Suma: <b id="sumWallet">0.00</b> PLN</span>
+            <div id="taskAdminTools" class="hidden">
+              <button id="btnAddTask" class="pill hover:bg-white/10">Dodaj zadanie</button>
+            </div>
           </header>
-          <form id="manualAddForm" class="grid gap-2 md:grid-cols-[1fr_130px] mb-3">
-            <input class="card p-3 bg-black/40" id="manualAmount" type="number" min="0" step="0.01" placeholder="Kwota do dodania" required />
-            <button class="card p-3 bg-[var(--accent)] hover:brightness-110 font-semibold">Dodaj ręcznie</button>
-          </form>
-          <div id="financeHistory" class="grid gap-2"></div>
+          <!-- Lista zadań użytkownika (dla pracownika) / wszystkich (dla admina) -->
+          <div id="tasksList" class="grid gap-2"></div>
+        </section>
+
+        <!-- ZAROBKI -->
+        <section id="view-zarobki" class="card p-4 hidden">
+          <header class="flex items-center justify-between mb-2">
+            <h2 class="text-lg font-bold flex items-center gap-2">
+              <i data-lucide="coins" class="w-5 h-5 text-[var(--accent)]"></i>Zarobki
+            </h2>
+            <span class="pill">Suma: <b id="earnSum">0.00</b> PLN</span>
+          </header>
+
+          <!-- Panel admina: Wypłać -->
+          <div id="payoutCard" class="hidden card p-3 mb-3">
+            <h3 class="font-semibold mb-2 flex items-center gap-2"><i data-lucide="send" class="w-4 h-4 text-[var(--accent)]"></i>Wypłać pracownikowi</h3>
+            <form id="payoutForm" class="grid gap-2 md:grid-cols-4">
+              <select id="payoutEmployee" class="card p-3 bg-black/40" required></select>
+              <input  id="payoutAmount" type="number" min="0" step="0.01" class="card p-3 bg-black/40" placeholder="Kwota (PLN)" required />
+              <input  id="payoutNote" class="card p-3 bg-black/40" placeholder="Opis zadania / komentarz" required />
+              <button class="card p-3 bg-[var(--accent)] hover:brightness-110 font-semibold">Wypłać</button>
+            </form>
+          </div>
+
+          <div id="earnHistory" class="grid gap-2"></div>
         </section>
 
         <!-- PROJEKTY -->
@@ -133,127 +141,137 @@
           <div id="projectsGrid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
         </section>
 
-        <!-- PRACOWNICY -->
+        <!-- PRACOWNICY (dodawanie z nowymi polami) -->
         <section id="view-pracownicy" class="card p-4 hidden">
           <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
             <i data-lucide="users" class="w-5 h-5 text-[var(--accent)]"></i>Pracownicy
           </h2>
-          <form id="empForm" class="grid gap-2 md:grid-cols-3 mb-3">
-            <input class="card p-3 bg-black/40" name="login" placeholder="Login" required />
+          <form id="empForm" class="grid gap-2 md:grid-cols-4 mb-3">
+            <input class="card p-3 bg-black/40" name="fullname" placeholder="Imię i nazwisko" required />
+            <input class="card p-3 bg-black/40" name="login"    placeholder="Login" required />
             <input class="card p-3 bg-black/40" name="password" placeholder="Hasło" required />
             <button class="card p-3 bg-[var(--accent)] hover:brightness-110 font-semibold">Dodaj pracownika</button>
           </form>
           <div id="empList" class="grid gap-2"></div>
         </section>
 
-        <!-- START (dla pracownika) -->
-        <section id="view-start" class="card p-4 hidden">
-          <h2 class="text-lg font-bold mb-2 flex items-center gap-2">
-            <i data-lucide="rocket" class="w-5 h-5 text-[var(--accent)]"></i>Start
+        <!-- ARCHIWUM (tylko admin) -->
+        <section id="view-archiwum" class="card p-4 hidden">
+          <h2 class="text-lg font-bold mb-3 flex items-center gap-2">
+            <i data-lucide="archive" class="w-5 h-5 text-[var(--accent)]"></i>Archiwum profili
           </h2>
-          <p class="text-white/70">Oczekuj na przydzielenie Ci zadań.</p>
+          <div id="archiveList" class="grid gap-2"></div>
         </section>
       </main>
     </section>
   </div>
 
-  <script>
-    const API_URL = "https://manager-10-production.up.railway.app"; 
+  <!-- BLOKUJĄCY ONBOARDING PRACOWNIKA -->
+  <div id="onboardOverlay" class="overlay hidden">
+    <div class="card p-5 w-[min(560px,92vw)]">
+      <h3 class="text-lg font-bold mb-2 flex items-center gap-2">
+        <i data-lucide="id-card" class="w-5 h-5 text-[var(--accent)]"></i>Uzupełnij dane profilu
+      </h3>
+      <p class="text-white/70 text-sm mb-3">Te dane zobaczy tylko administrator (Archiwum). Bez ich uzupełnienia nie możesz przejść dalej.</p>
+      <form id="onboardForm" class="grid gap-2 md:grid-cols-2">
+        <input name="fullname" class="card p-3 bg-black/40 md:col-span-2" placeholder="Imię i nazwisko" required />
+        <input name="project"  class="card p-3 bg-black/40 md:col-span-2" placeholder="Projekt (np. LiteBots)" required />
+        <input name="payout"   class="card p-3 bg-black/40" placeholder="Nr konta lub tel. BLIK" required />
+        <input name="email"    class="card p-3 bg-black/40" type="email" placeholder="E-mail" required />
+        <button class="card p-3 bg-[var(--accent)] hover:brightness-110 font-semibold md:col-span-2">Zapisz</button>
+      </form>
+    </div>
+  </div>
 
+  <script>
+    /* ====== STORAGE (Local) ====== */
     const db = {
-      read(){
-        return JSON.parse(localStorage.getItem('mgr1')||'{}');
-      },
-      write(data){
-        localStorage.setItem('mgr1', JSON.stringify(data));
-      },
+      read(){ return JSON.parse(localStorage.getItem('mgr1')||'{}'); },
+      write(data){ localStorage.setItem('mgr1', JSON.stringify(data)); },
       init(){
         const s = this.read();
-        if(!s.users){
-          s.users = [{login:'Gracjan', password:'Gracjan33201', role:'admin'}];
-        }
-        if(!s.employees){ s.employees = []; }
+        if(!s.users){ s.users = [{login:'Gracjan', password:'Gracjan33201', role:'admin', fullname:'Administrator'}]; }
+        if(!s.employees){ s.employees = []; }                 // {login,password,role:'employee', fullname, profile:{...}, profileDone:false}
         if(!s.orders){ s.orders = []; }
+        if(!s.tasks){ s.tasks = []; }                         // {id,title,desc,due,assignedTo,done:false}
+        if(!s.earnings){ s.earnings = []; }                   // {id,user,amount,note,ts}
+        if(!s.notifications){ s.notifications = {}; }         // map login -> [messages]
         if(!s.projects){ s.projects = []; }
-        if(!s.finance){ s.finance = { sum:0, history:[] }; }
         if(!s.session){ s.session = null; }
         this.write(s);
       }
     };
 
-    // --- Notifications (PWA) ---
-    async function ensureSW(){
-      if('serviceWorker' in navigator){
-        try { return await navigator.serviceWorker.register('./sw.js'); }
-        catch(e){ console.warn('SW register fail', e); }
-      }
-    }
+    /* ====== NOTIFY (PWA) ====== */
+    async function ensureSW(){ if('serviceWorker' in navigator){ try{ return await navigator.serviceWorker.register('./sw.js'); }catch(e){}}}
     async function requestNotifyPermission(){
       if(!('Notification' in window)) return false;
-      if(Notification.permission === 'granted') return true;
-      if(Notification.permission !== 'denied'){
-        const res = await Notification.requestPermission();
-        return res === 'granted';
-      }
+      if(Notification.permission==='granted') return true;
+      if(Notification.permission!=='denied'){ const res=await Notification.requestPermission(); return res==='granted'; }
       return false;
     }
     async function pushNow(title, body){
-      try{
-        const reg = await ensureSW();
-        if(!reg) return;
-        reg.showNotification(title, { body, icon:'https://i.imgur.com/ikYb7tH.png', badge:'https://i.imgur.com/ikYb7tH.png' });
-      }catch(e){ console.warn('notify error', e); }
+      try{ const reg = await ensureSW(); if(!reg) return; reg.showNotification(title,{body,icon:'https://i.imgur.com/ikYb7tH.png',badge:'https://i.imgur.com/ikYb7tH.png'}); }catch(e){}
+    }
+    function queueNotify(login, title, body){
+      const s = db.read();
+      s.notifications[login] = s.notifications[login]||[];
+      s.notifications[login].unshift({title, body, ts:new Date().toISOString(), unread:true});
+      db.write(s);
+      const ses = s.session;
+      if(ses && ses.login===login){ requestNotifyPermission().then(()=>pushNow(title, body)); }
+    }
+    function showUnreadOnLogin(login){
+      const s = db.read();
+      (s.notifications[login]||[]).filter(n=>n.unread).forEach(n=>{
+        pushNow(n.title, n.body); n.unread=false;
+      });
+      db.write(s);
     }
 
-    // Schedulers (działa gdy karta jest otwarta)
-    let reminderTimer = null;
-    function scheduleReminders(){
-      if(reminderTimer) clearInterval(reminderTimer);
-      reminderTimer = setInterval(() => {
-        const s = db.read();
-        const now = new Date();
-        s.orders.filter(o=>!o.done).forEach(o=>{
-          const due = new Date(o.due);
-          const ms = due - now;
-          const day = 24*60*60*1000;
-          const marks = [7*day, 3*day, 1*day];
-          marks.forEach(mark=>{
-            const key = `rem_${o.id}_${mark}`;
-            if(ms < mark && !o[key]){
-              o[key] = true;
-              pushNow('Przypomnienie o zleceniu', `"${o.title}" kończy się za ${mark===7*day?'7 dni':mark===3*day?'3 dni':'24 godziny'}.`);
-            }
-          });
-        });
-        db.write(s);
-      }, 60*1000); // co minutę sprawdź terminy
-    }
-
-    // --- State & UI ---
+    /* ====== STATE / UI ====== */
     const els = {
       authCard: document.getElementById('authCard'),
       main: document.getElementById('main'),
       loginUser: document.getElementById('loginUser'),
+      // zlecenia
       ordersList: document.getElementById('ordersList'),
       ordersCount: document.getElementById('ordersCount'),
-      sumWallet: document.getElementById('sumWallet'),
-      financeHistory: document.getElementById('financeHistory'),
+      // zadania
+      tasksList: document.getElementById('tasksList'),
+      taskAdminTools: document.getElementById('taskAdminTools'),
+      // zarobki
+      earnSum: document.getElementById('earnSum'),
+      earnHistory: document.getElementById('earnHistory'),
+      payoutCard: document.getElementById('payoutCard'),
+      payoutForm: document.getElementById('payoutForm'),
+      payoutEmployee: document.getElementById('payoutEmployee'),
+      payoutAmount: document.getElementById('payoutAmount'),
+      payoutNote: document.getElementById('payoutNote'),
+      // projekty
       projectsGrid: document.getElementById('projectsGrid'),
+      // pracownicy
       empList: document.getElementById('empList'),
+      // archiwum
+      archiveList: document.getElementById('archiveList'),
+      // onboarding
+      onboardOverlay: document.getElementById('onboardOverlay'),
+      onboardForm: document.getElementById('onboardForm'),
     };
 
-    // Auth
+    /* ====== AUTH ====== */
     function getSession(){ return db.read().session; }
-    function setSession(user){ const s = db.read(); s.session = user; db.write(s); }
+    function setSession(user){ const s=db.read(); s.session=user; db.write(s); }
     function signIn(login, password){
       const s = db.read();
-      const u = (s.users||[]).concat(s.employees||[]).find(x=>x.login===login && x.password===password);
+      const all = (s.users||[]).concat(s.employees||[]);
+      const u = all.find(x=>x.login===login && x.password===password);
       if(u){ setSession({login:u.login, role:u.role||'employee'}); return true; }
       return false;
     }
     function signOut(){ setSession(null); render(); }
 
-    // Views
+    /* ====== NAV / VIEWS ====== */
     function showView(id){
       document.querySelectorAll('[id^="view-"]').forEach(el=>el.classList.add('hidden'));
       document.getElementById('view-'+id)?.classList.remove('hidden');
@@ -261,36 +279,29 @@
       document.querySelector(`.navbtn[data-view="${id}"]`)?.classList.add('active');
     }
 
-    // Orders
+    /* ====== ORDERS ====== */
     function addOrder(data){
-      const s = db.read();
-      const id = 'o_'+Date.now();
+      const s=db.read(); const id='o_'+Date.now();
       s.orders.unshift({ id, done:false, created:new Date().toISOString(), ...data });
-      db.write(s); renderOrders(); scheduleReminders();
+      db.write(s); renderOrders();
     }
-    function toggleDone(id){
-      const s = db.read();
-      const o = s.orders.find(x=>x.id===id);
-      if(!o) return;
-      o.done = !o.done;
+    function toggleOrderDone(id){
+      const s=db.read(); const o=s.orders.find(x=>x.id===id); if(!o) return;
+      o.done=!o.done;
       if(o.done){
-        // add to finance
-        const amount = parseFloat(o.amount||0);
-        s.finance.sum = parseFloat((s.finance.sum + amount).toFixed(2));
-        s.finance.history.unshift({ id:'f_'+Date.now(), type:'income', amount, ts:new Date().toISOString(), note:`Zlecenie: ${o.title}` });
-        pushNow('Zlecenie zrealizowane', `Zrealizowano: ${o.title}. Do portfela wpłynęła kwota: ${amount.toFixed(2)} PLN`);
+        // do finansów firmy (opcjonalnie)
+        // ...
       }
-      db.write(s); render();
+      db.write(s); renderOrders();
     }
-
     function renderOrders(){
-      const s = db.read();
-      els.ordersCount.textContent = s.orders.length;
-      els.ordersList.innerHTML = '';
+      const s=db.read();
+      els.ordersCount.textContent=s.orders.length;
+      els.ordersList.innerHTML='';
       s.orders.forEach(o=>{
-        const el = document.createElement('div');
-        el.className = 'card p-3';
-        el.innerHTML = `
+        const el=document.createElement('div');
+        el.className='card p-3';
+        el.innerHTML=`
           <div class="flex items-center justify-between">
             <div class="flex-1">
               <div class="font-semibold">${o.title} ${o.done?'<span class="pill bg-[var(--accent)]/15 text-[var(--accent)]">DONE</span>':''}</div>
@@ -308,181 +319,264 @@
       lucide.createIcons();
     }
 
-    // Finance
-    function renderFinance(){
-      const s = db.read();
-      els.sumWallet.textContent = (s.finance.sum||0).toFixed(2);
-      els.financeHistory.innerHTML = '';
-      s.finance.history.forEach(h=>{
-        const el = document.createElement('div');
-        el.className = 'card p-3';
-        el.innerHTML = `<div class="flex items-center justify-between">
-          <div>${h.type==='income'?'<i data-lucide="plus-circle" class="w-4 h-4 text-[var(--accent)]"></i>':'-'} <span class="ml-2">${h.note||''}</span></div>
-          <div class="font-semibold">${h.amount.toFixed(2)} PLN</div>
-        </div>`;
-        els.financeHistory.appendChild(el);
+    /* ====== TASKS ====== */
+    function addTask({title,desc,due,assignedTo}){
+      const s=db.read();
+      s.tasks.unshift({ id:'t_'+Date.now(), title, desc, due, assignedTo, done:false, created:new Date().toISOString() });
+      db.write(s);
+      // powiadom pracownika
+      queueNotify(assignedTo, 'Nowe zadanie', `${title} · termin: ${due}`);
+      renderTasks();
+    }
+    function toggleTask(id){
+      const s=db.read(); const t=s.tasks.find(x=>x.id===id); if(!t) return;
+      t.done=!t.done; db.write(s); renderTasks();
+      if(t.done){
+        // powiadom admina
+        const adminLogin = (s.users[0]||{}).login || 'Gracjan';
+        queueNotify(adminLogin, 'Zadanie wykonane', `${t.assignedTo}: ${t.title}`);
+      }
+    }
+    function renderTasks(){
+      const s=db.read(); const ses=s.session;
+      const isAdmin = ses && ses.role==='admin';
+      els.taskAdminTools.classList.toggle('hidden', !isAdmin);
+      els.tasksList.innerHTML='';
+      const list = isAdmin ? s.tasks : s.tasks.filter(t=>t.assignedTo===ses.login);
+      if(isAdmin && list.length){
+        // sort: najpierw niewykonane
+        list.sort((a,b)=> (a.done===b.done?0:a.done?1:-1));
+      }
+      list.forEach(t=>{
+        const el=document.createElement('div'); el.className='card p-3';
+        el.innerHTML=`
+          <div class="flex items-start justify-between gap-3">
+            <div class="flex-1">
+              <div class="font-semibold">${t.title} ${t.done?'<span class="pill bg-[var(--accent)]/15 text-[var(--accent)]">DONE</span>':''}</div>
+              <div class="text-xs text-white/70">Dla: <b>${t.assignedTo}</b> · Do: <b>${t.due}</b></div>
+              <div class="text-sm text-white/80 mt-1">${t.desc||''}</div>
+            </div>
+            <div class="flex flex-col gap-2">
+              <button data-act="tdone" data-id="${t.id}" class="pill hover:bg-white/10">${t.done?'Cofnij':'Wykonane'}</button>
+              ${isAdmin?`<button data-act="tdel" data-id="${t.id}" class="pill hover:bg-white/10">Usuń</button>`:''}
+            </div>
+          </div>`;
+        els.tasksList.appendChild(el);
       });
       lucide.createIcons();
     }
 
-    // Projects
+    /* ====== EARNINGS ====== */
+    function addEarning(user, amount, note){
+      const s=db.read();
+      s.earnings.unshift({ id:'e_'+Date.now(), user, amount:parseFloat(amount), note, ts:new Date().toISOString() });
+      db.write(s);
+      // powiadom pracownika
+      queueNotify(user, 'Wypłata', `Zarobiłeś ${parseFloat(amount).toFixed(2)} PLN za ${note}`);
+      renderEarnings();
+    }
+    function renderEarnings(){
+      const s=db.read(); const ses=s.session; const isAdmin = ses && ses.role==='admin';
+      els.payoutCard.classList.toggle('hidden', !isAdmin);
+
+      // wypełnij select pracowników
+      if(isAdmin){
+        els.payoutEmployee.innerHTML='';
+        s.employees.forEach(u=>{
+          const opt=document.createElement('option'); opt.value=u.login; opt.textContent=`${u.fullname||u.login} (${u.login})`;
+          els.payoutEmployee.appendChild(opt);
+        });
+      }
+
+      // Historia
+      els.earnHistory.innerHTML='';
+      const items = isAdmin ? s.earnings : s.earnings.filter(e=>e.user===ses.login);
+      const sum = items.reduce((a,b)=>a+(b.amount||0),0);
+      els.earnSum.textContent = sum.toFixed(2);
+
+      items.forEach(e=>{
+        const el=document.createElement('div'); el.className='card p-3';
+        el.innerHTML=`<div class="flex items-center justify-between">
+          <div class="text-sm"><b>${e.user}</b> · ${new Date(e.ts).toLocaleString()}<div class="text-white/70">${e.note}</div></div>
+          <div class="font-semibold">${e.amount.toFixed(2)} PLN</div>
+        </div>`;
+        els.earnHistory.appendChild(el);
+      });
+    }
+
+    /* ====== PROJECTS (jak wcześniej) ====== */
     function addProjectCard(){
-      const name = prompt('Nazwa projektu?');
-      if(!name) return;
-      const logo = prompt('URL logo (opcjonalnie)?')||'https://i.imgur.com/ikYb7tH.png';
-      const s = db.read();
-      const prj = { id:'p_'+Date.now(), name, logo, notes:[] };
+      const name=prompt('Nazwa projektu?'); if(!name) return;
+      const logo=prompt('URL logo (opcjonalnie)?')||'https://i.imgur.com/ikYb7tH.png';
+      const s=db.read(); const prj={id:'p_'+Date.now(), name, logo, notes:[]};
       s.projects.unshift(prj); db.write(s); renderProjects();
     }
     function renderProjects(){
-      const s = db.read();
-      els.projectsGrid.innerHTML = '';
+      const s=db.read(); els.projectsGrid.innerHTML='';
       s.projects.forEach(p=>{
-        const el = document.createElement('div');
-        el.className = 'card p-3';
-        el.innerHTML = `
-          <div class="flex items-center gap-2">
-            <img src="${p.logo}" class="h-8 w-8 rounded-xl ring-1 ring-white/10"/>
-            <div class="font-semibold">${p.name}</div>
-          </div>
-          <div class="mt-2 grid gap-2" id="notes-${p.id}"></div>
-          <div class="mt-2 flex gap-2">
-            <button class="pill" data-act="addnote" data-id="${p.id}">Dodaj notatkę</button>
-            <button class="pill" data-act="delprj" data-id="${p.id}">Usuń</button>
-          </div>`;
+        const el=document.createElement('div'); el.className='card p-3';
+        el.innerHTML=`<div class="flex items-center gap-2">
+          <img src="${p.logo}" class="h-8 w-8 rounded-xl ring-1 ring-white/10"/>
+          <div class="font-semibold">${p.name}</div>
+        </div>`;
         els.projectsGrid.appendChild(el);
-        // notes
-        const notesWrap = el.querySelector('#notes-'+p.id);
-        (p.notes||[]).forEach(n=>{
-          const nEl = document.createElement('div');
-          nEl.className='card p-2 text-sm';
-          nEl.textContent = '• '+n;
-          notesWrap.appendChild(nEl);
-        });
       });
-      lucide.createIcons();
     }
 
-    // Employees
-    function addEmployee(data){
-      const s = db.read();
-      s.employees.unshift({ ...data, role:'employee' });
+    /* ====== EMPLOYEES ====== */
+    function addEmployee({login,password,fullname}){
+      const s=db.read();
+      s.employees.unshift({ login, password, role:'employee', fullname, profileDone:false, profile:null });
       db.write(s); renderEmployees();
     }
     function renderEmployees(){
-      const s = db.read();
-      els.empList.innerHTML = '';
+      const s=db.read(); els.empList.innerHTML='';
       s.employees.forEach(u=>{
-        const el = document.createElement('div');
-        el.className = 'card p-3 flex items-center justify-between';
-        el.innerHTML = `<div><b>${u.login}</b> <span class="pill">employee</span></div><div class="text-xs text-white/60">(hasło ukryte)</div>`;
+        const el=document.createElement('div'); el.className='card p-3 flex items-center justify-between';
+        el.innerHTML=`<div><b>${u.fullname||u.login}</b> <span class="pill">employee</span> <span class="text-xs text-white/60 ml-2">${u.login}</span></div>
+        <div class="text-xs text-white/60">${u.profileDone?'profil: TAK':'profil: NIE'}</div>`;
         els.empList.appendChild(el);
       });
     }
 
-    // Render
+    /* ====== ARCHIVE ====== */
+    function renderArchive(){
+      const s=db.read(); els.archiveList.innerHTML='';
+      s.employees.filter(u=>u.profileDone && u.profile).forEach(u=>{
+        const el=document.createElement('div'); el.className='card p-3';
+        el.innerHTML=`<div class="font-semibold">${u.fullname} <span class="text-xs text-white/60 ml-2">(${u.login})</span></div>
+        <div class="text-sm text-white/80 mt-1">Projekt: ${u.profile.project}</div>
+        <div class="text-sm text-white/80">Płatność: ${u.profile.payout}</div>
+        <div class="text-sm text-white/80">Email: ${u.profile.email}</div>`;
+        els.archiveList.appendChild(el);
+      });
+    }
+
+    /* ====== RENDER ROOT ====== */
     function render(){
-      const s = db.read();
-      const ses = s.session;
-      document.getElementById('loginUser').textContent = ses? `${ses.login} (${ses.role})` : '—';
+      const s=db.read(); const ses=s.session;
+      els.loginUser.textContent = ses? `${ses.login} (${ses.role})` : '—';
       document.getElementById('authCard').classList.toggle('hidden', !!ses);
       document.getElementById('main').classList.toggle('hidden', !ses);
 
-      // Role-based visibility
       const isAdmin = ses && ses.role==='admin';
-      // Employee widzi tylko Start
+
+      // Widoczność zakładek
       document.querySelector('[data-view="zlecenia"]').disabled   = !isAdmin;
-      document.querySelector('[data-view="realizacje"]').disabled = !isAdmin;
-      document.querySelector('[data-view="finanse"]').disabled    = !isAdmin;
       document.querySelector('[data-view="projekty"]').disabled   = !isAdmin;
       document.querySelector('[data-view="pracownicy"]').disabled = !isAdmin;
+      document.querySelector('[data-view="archiwum"]').disabled   = !isAdmin;
 
-      if(!isAdmin){ showView('start'); }
-      else { showView('zlecenia'); }
+      // Domyślnie: admin -> Zlecenia, pracownik -> Zadania
+      showView(isAdmin ? 'zlecenia' : 'zadania');
 
       renderOrders();
-      renderFinance();
+      renderTasks();
+      renderEarnings();
       renderProjects();
       renderEmployees();
+      renderArchive();
+
+      // Jeśli pracownik i nie ma profilu -> blokujący onboarding
+      if(ses && ses.role!=='admin'){
+        const emp = s.employees.find(e=>e.login===ses.login);
+        els.onboardOverlay.classList.toggle('hidden', !!emp?.profileDone);
+      } else {
+        els.onboardOverlay.classList.add('hidden');
+      }
+
       lucide.createIcons();
     }
 
-    // --- Events ---
+    /* ====== EVENTS ====== */
+    // Login
     document.getElementById('loginForm').addEventListener('submit', e=>{
       e.preventDefault();
-      const login = document.getElementById('login').value.trim();
-      const pass  = document.getElementById('password').value.trim();
+      const login=document.getElementById('login').value.trim();
+      const pass =document.getElementById('password').value.trim();
       if(signIn(login, pass)){
-        render(); requestNotifyPermission(); scheduleReminders(); ensureSW();
+        render(); requestNotifyPermission().then(()=>showUnreadOnLogin(login)); ensureSW();
       } else alert('Błędny login lub hasło');
     });
     document.getElementById('btnLogout').addEventListener('click', signOut);
 
-    // Sidebar nav
+    // Sidebar
     document.querySelectorAll('.navbtn').forEach(b=>{
       b.addEventListener('click', ()=>{
-        const id = b.dataset.view;
-        const ses = getSession();
-        if(ses?.role!=='admin' && id!=='start') return; // guard
+        const id=b.dataset.view; const ses=getSession(); const isAdmin=ses&&ses.role==='admin';
+        if(!isAdmin && ['zlecenia','projekty','pracownicy','archiwum'].includes(id)) return;
         showView(id);
       });
     });
 
     // Orders form
-    document.getElementById('orderForm').addEventListener('submit', async e=>{
+    document.getElementById('orderForm').addEventListener('submit', e=>{
       e.preventDefault();
-      const fd = new FormData(e.target);
-      const data = Object.fromEntries(fd.entries());
-      addOrder(data);
-      e.target.reset();
-      await requestNotifyPermission();
-      pushNow('Dodano zlecenie', `Nowe zlecenie: ${data.title}`);
+      const fd=new FormData(e.target); const data=Object.fromEntries(fd.entries());
+      addOrder(data); e.target.reset(); requestNotifyPermission().then(()=>pushNow('Dodano zlecenie', `Nowe zlecenie: ${data.title}`));
     });
-
-    // Orders actions
     els.ordersList.addEventListener('click', e=>{
-      const btn = e.target.closest('button');
-      if(!btn) return;
-      const id = btn.dataset.id;
-      const act = btn.dataset.act;
-      const s = db.read();
-      if(act==='toggle') toggleDone(id);
-      if(act==='del'){
-        s.orders = s.orders.filter(x=>x.id!==id); db.write(s); render();
-      }
+      const btn=e.target.closest('button'); if(!btn) return;
+      const id=btn.dataset.id; const act=btn.dataset.act; const s=db.read();
+      if(act==='toggle') toggleOrderDone(id);
+      if(act==='del'){ s.orders=s.orders.filter(x=>x.id!==id); db.write(s); renderOrders(); }
     });
 
-    // Manual finance add
-    document.getElementById('manualAddForm').addEventListener('submit', e=>{
+    // Zadania
+    document.getElementById('btnAddTask').addEventListener('click', ()=>{
+      const s=db.read();
+      if(s.employees.length===0) return alert('Brak pracowników. Dodaj pracownika najpierw.');
+      const title=prompt('Tytuł zadania?'); if(!title) return;
+      const desc =prompt('Opis?')||'';
+      const due  =prompt('Termin (RRRR-MM-DD)?')||new Date().toISOString().slice(0,10);
+      const assignedTo = prompt('Login pracownika? Dostępni: '+s.employees.map(e=>e.login).join(', '));
+      if(!assignedTo) return;
+      if(!s.employees.find(e=>e.login===assignedTo)) return alert('Nie ma takiego pracownika.');
+      addTask({title,desc,due,assignedTo});
+    });
+    els.tasksList.addEventListener('click', e=>{
+      const btn=e.target.closest('button'); if(!btn) return;
+      const id=btn.dataset.id; const act=btn.dataset.act; const s=db.read();
+      if(act==='tdone') toggleTask(id);
+      if(act==='tdel'){ s.tasks=s.tasks.filter(x=>x.id!==id); db.write(s); renderTasks(); }
+    });
+
+    // Zarobki (admin)
+    els.payoutForm.addEventListener('submit', e=>{
       e.preventDefault();
-      const amount = parseFloat(document.getElementById('manualAmount').value||'0');
-      const s = db.read();
-      s.finance.sum = parseFloat((s.finance.sum + amount).toFixed(2));
-      s.finance.history.unshift({ id:'f_'+Date.now(), type:'income', amount, ts:new Date().toISOString(), note:'Ręczny dodatek' });
-      db.write(s); renderFinance();
+      const user=els.payoutEmployee.value; const amount=els.payoutAmount.value; const note=els.payoutNote.value.trim();
+      if(!user||!amount||!note) return;
+      addEarning(user, amount, note);
+      els.payoutForm.reset();
+    });
+
+    // Projekty
+    document.getElementById('btnAddProject').addEventListener('click', addProjectCard);
+
+    // Pracownicy
+    document.getElementById('empForm').addEventListener('submit', e=>{
+      e.preventDefault();
+      const fd=new FormData(e.target);
+      addEmployee({ fullname: fd.get('fullname'), login: fd.get('login'), password: fd.get('password') });
       e.target.reset();
     });
 
-    // Projects
-    document.getElementById('btnAddProject').addEventListener('click', addProjectCard);
-    els.projectsGrid.addEventListener('click', e=>{
-      const btn = e.target.closest('button'); if(!btn) return;
-      const id = btn.dataset.id; const act = btn.dataset.act; const s = db.read();
-      const p = s.projects.find(x=>x.id===id);
-      if(act==='addnote'){
-        const txt = prompt('Treść notatki / propozycji?'); if(!txt) return;
-        p.notes.unshift(txt); db.write(s); renderProjects();
-      }
-      if(act==='delprj'){
-        s.projects = s.projects.filter(x=>x.id!==id); db.write(s); renderProjects();
-      }
+    // Onboarding (blokada)
+    els.onboardForm.addEventListener('submit', e=>{
+      e.preventDefault();
+      const fd=new FormData(e.target);
+      const s=db.read(); const ses=s.session;
+      const emp=s.employees.find(x=>x.login===ses.login);
+      emp.profileDone=true;
+      emp.profile={ fullname: fd.get('fullname'), project: fd.get('project'), payout: fd.get('payout'), email: fd.get('email') };
+      emp.fullname = emp.profile.fullname || emp.fullname;
+      db.write(s);
+      els.onboardOverlay.classList.add('hidden');
+      renderArchive();
     });
 
     // Init
-    db.init();
-    render();
-    ensureSW();
-    lucide.createIcons();
+    db.init(); render(); ensureSW(); lucide.createIcons();
   </script>
 </body>
 </html>
