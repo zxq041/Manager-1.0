@@ -1,7 +1,7 @@
 {
   "name": "manager-1-pwn",
-  "version": "1.0.0",
-  "description": "Manager 1.0 – PWN Panel API (Express + optional MongoDB)",
+  "version": "1.1.0",
+  "description": "Manager 1.0 – PWN Panel API (Express + optional MongoDB, tasks & earnings)",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
